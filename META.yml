@@ -1,0 +1,14 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Catalyst-Plugin-Session-Store-Delegate
+version:      0.01
+version_from: lib/Catalyst/Plugin/Session/Store/Delegate.pm
+installdirs:  site
+requires:
+    Catalyst::Plugin::Session:     0.12
+    Class::Accessor::Fast:         0
+    Test::More:                    0
+    Test::use::ok:                 0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30

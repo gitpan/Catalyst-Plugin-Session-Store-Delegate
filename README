@@ -1,0 +1,117 @@
+NAME
+    Catalyst::Plugin::Session::Store::Delegate - Delegate session storage to
+    an application model object.
+
+SYNOPSIS
+            use Catalyst::Plugin::Session::Store::Delegate;
+
+DESCRIPTION
+    This store plugins makes delegating session storage to a first class
+    object model easy.
+
+THE MODEL
+    The model is used to retrieve the delegate object for a given session
+    ID.
+
+    This is normally something like DBIC's resultset object.
+
+    The model must respond to the "get_model" method or closure in the
+    sesion config hash (defaults to "get_session_store_delegate").
+
+    An object must always be returned from this method, even if it means
+    autovivifying. The object may optimize and create itself lazily in the
+    actual store only when ->store methods are actually called.
+
+THE DELEGATE
+    A single delegate belongs to a single session ID. It provides storage
+    space for arbitrary fields.
+
+    The delegate object must respond to method calls as per the
+    "session_store_delegate_key_to_accessor" method's return values.
+
+    Typically this means responding to $obj->$field type accessors.
+
+    If necessary, the delegate should maintain an internal reference count
+    of the stored fields, so that it can garbage collect itself when all
+    fields have been deleted.
+
+    The fields are arbitrary, and are goverend by the various session
+    plugins.
+
+    The basic keys that must be supported are:
+
+    expires
+        A timestamp indicating when the session will expire.
+
+        If a store so chooses it may clean up session data after this
+        timestamp, even without being told to delete.
+
+    session
+        The main session data hash.
+
+        Might not be used, if only "flash" exists.
+
+    flash
+        A hash much like the main session data hash, which can be created
+        and deleted multiple times per session, as required.
+
+    The delegate must also respond to the "flush" method which is used to
+    tell the store delegate that no more set/get/delete methods will be
+    invoked on it.
+
+METHODS
+    session_store_delegate_key_to_accessor $key, $operation
+        This method implements the various calling conventions. It accepts a
+        key and an operation name ("get", "set" or "delete"), and must
+        return a unique ID, a method (could be a string or a code
+        reference), and an optional list of extra arguments.
+
+        The default version splits $key on the first colon, extracting the
+        field name and the ID. It then returns the ID, and the unaltered
+        field name, and if the operation is 'delete' also provides the extra
+        argument "undef". This works with accessor semantics like these:
+
+            $obj->foo;
+            $obj->foo("bar");
+            $obj->foo(undef);
+
+        To facilitate a convention like
+
+            $obj->get_foo;
+            $obj->set_foo("bar");
+            $obj->delete_foo;
+
+        or
+
+            $obj->get("foo");
+            $obj->set("foo");
+            $obj->delete("foo");
+
+        simply override this method. You may look in the source of this
+        module to find commented out versions which should help you.
+
+    session_store_delegate $id
+        This method returns the delegate, which may be cached in $c.
+
+    get_session_store_delegate $id
+        This method should get the delegate object for a given ID. See "THE
+        MODEL" for more details.
+
+    session_store_model
+        This method should return the model that will provide the delegate
+        object.The default implementation will simply return "$c->model(
+        $c->session_store_model_name )".
+
+    session_store_model_name
+        Returns "$c->config->{session}{model_name} || "Sessions"".
+
+    finalize_session_delegate $delegate
+        Invokes the "flush" method on the delegate. May be overridden if
+        that behavior is inappropriate.
+
+    get_session_data $key
+    store_session_data $key, $value
+    delete_session_data $key
+        These methods translate the store API into the delegate API using
+        "session_store_delegate_key_to_accessor".
+
