@@ -9,7 +9,7 @@ use base qw/
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 __PACKAGE__->mk_accessors(qw/_session_store_delegate/);
 
@@ -22,7 +22,8 @@ sub session_store_model {
     my ( $c, $id ) = @_;
 
     # $id may be used in for e.g. keyspace partitioning
-    $c->model( $c->session_store_model_name, $id );
+    my $name = $c->session_store_model_name;
+    $c->model( $name, $id ) || die "Couldn't find a model named $name";
 }
 
 sub session_store_delegate {
@@ -31,6 +32,11 @@ sub session_store_delegate {
     my $obj = $c->_session_store_delegate;
 
     unless($obj) {
+        unless ($id) {
+            $c->create_session_id_if_needed;
+            $id = $c->sessionid;
+        }
+
         $obj = $c->get_session_store_delegate($id);
         $c->_session_store_delegate($obj)
     }
@@ -47,7 +53,7 @@ sub get_session_store_delegate {
 
     # allow methods or arbitrary code refs
     my $method = $c->config->{session}{get_delegate} || "get_session_store_delegate";
-    $model->$method( $id );
+    $model->$method($id) || die "couldn't get delegate from model: $model with method: $method";
 }
 
 sub _clear_session_instance_data {
@@ -67,32 +73,32 @@ sub finalize_session_delegate {
 }
 
 sub session_store_delegate_key_to_accessor {
-    my ( $self, $key, $operation ) = @_;
+    my ( $self, $key, $operation, @args ) = @_;
     my ( $field, $id ) = split(':', $key, 2);
-    return ( $id, $field, ($operation eq "delete" ? (undef) : ()) ); # delete is effectively set to undef
-    # return ( $id, join("_", $operation, $field) ); # for (get|set|delete)_foo type accessors
-    # return ( $id, $operation, $field ) # for get("foo"), set("foo") type accessors
+    return ( $field, ($operation eq "delete" ? (undef, @args) : @args ) ); # delete is effectively set to undef
+    # return ( join("_", $operation, $field) ); # for (get|set|delete)_foo type accessors
+    # return ( $operation, $field ) # for get("foo"), set("foo") type accessors
 }
 
 sub get_session_data {
     my ( $c, $key ) = @_;
-    my ( $id, $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "get");
+    my ( $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "get");
 
-    $c->session_store_delegate($id)->$accessor(@args);
+    $c->session_store_delegate->$accessor(@args);
 }
 
 sub store_session_data {
     my ( $c, $key, $value ) = @_;
-    my ( $id, $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "set");
+    my ( $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "set", $value);
 
-    $c->session_store_delegate($id)->$accessor( $value, @args );
+    $c->session_store_delegate->$accessor(@args);
 }
 
 sub delete_session_data {
     my ( $c, $key ) = @_;
-    my ( $id, $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "delete");
+    my ( $accessor, @args ) = $c->session_store_delegate_key_to_accessor($key, "delete");
 
-    $c->session_store_delegate($id)->$accessor(@args);
+    $c->session_store_delegate->$accessor(@args);
 }
 
 sub delete_expired_sessions {
@@ -188,14 +194,14 @@ store delegate that no more set/get/delete methods will be invoked on it.
 =item session_store_delegate_key_to_accessor $key, $operation
 
 This method implements the various calling conventions. It accepts a key and an
-operation name (C<get>, C<set> or C<delete>), and must return a unique ID, a
-method (could be a string or a code reference), and an optional list of extra
-arguments.
+operation name (C<get>, C<set> or C<delete>), and must return a method (could
+be a string or a code reference), and an optional list of arguments that will
+be invoked on the delegate.
 
 The default version splits $key on the first colon, extracting the field name
-and the ID. It then returns the ID, and  the unaltered field name, and if the
-operation is 'delete' also provides the extra argument C<undef>. This works
-with accessor semantics like these:
+and the ID. It then returns the unaltered field name, and if the operation is
+'delete' also provides the extra argument C<undef>. This works with accessor
+semantics like these:
 
     $obj->foo;
     $obj->foo("bar");
@@ -210,13 +216,13 @@ To facilitate a convention like
 or
 
     $obj->get("foo");
-    $obj->set("foo");
+    $obj->set("foo", "bar");
     $obj->delete("foo");
 
 simply override this method. You may look in the source of this module to find
 commented out versions which should help you.
 
-=item session_store_delegate $id
+=item session_store_delegate
 
 This method returns the delegate, which may be cached in C<$c>.
 

@@ -63,13 +63,13 @@ METHODS
     session_store_delegate_key_to_accessor $key, $operation
         This method implements the various calling conventions. It accepts a
         key and an operation name ("get", "set" or "delete"), and must
-        return a unique ID, a method (could be a string or a code
-        reference), and an optional list of extra arguments.
+        return a method (could be a string or a code reference), and an
+        optional list of arguments that will be invoked on the delegate.
 
         The default version splits $key on the first colon, extracting the
-        field name and the ID. It then returns the ID, and the unaltered
-        field name, and if the operation is 'delete' also provides the extra
-        argument "undef". This works with accessor semantics like these:
+        field name and the ID. It then returns the unaltered field name, and
+        if the operation is 'delete' also provides the extra argument
+        "undef". This works with accessor semantics like these:
 
             $obj->foo;
             $obj->foo("bar");
@@ -84,13 +84,13 @@ METHODS
         or
 
             $obj->get("foo");
-            $obj->set("foo");
+            $obj->set("foo", "bar");
             $obj->delete("foo");
 
         simply override this method. You may look in the source of this
         module to find commented out versions which should help you.
 
-    session_store_delegate $id
+    session_store_delegate
         This method returns the delegate, which may be cached in $c.
 
     get_session_store_delegate $id
