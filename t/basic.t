@@ -2,6 +2,8 @@
 
 use strict;
 use warnings;
+use FindBin qw/$Bin/;
+use lib "$Bin/lib";
 
 use File::Temp;
 use File::Spec;
@@ -23,6 +25,7 @@ use Catalyst::Plugin::Session::Test::Store (
     extra_tests => 4,
     backend     => "Delegate",
     config      => {
+        model => 'Session',
         get_delegate => sub {
             my ( $model, $id ) = @_;
             

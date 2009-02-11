@@ -12,7 +12,8 @@ WriteMakefile(
         'Catalyst::Plugin::Session' => '0.12',
         'Class::Accessor::Fast'     => '0',
         'Test::More'                => '0',
-        'Test::use::ok'             => '0'
+        'Test::use::ok'             => '0',
+        'MRO::Compat'               => '0',
     },
     'INSTALLDIRS' => 'site',
     'EXE_FILES'   => [],

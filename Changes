@@ -1,3 +1,7 @@
+0.03
+        - Fix tests to work with tightened up $c->model in 5.71
+        - Switch from NEXT to MRO::Compat for method redispatch
+
 0.02
         - Internal API refactorings
 

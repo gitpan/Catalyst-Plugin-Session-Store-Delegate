@@ -9,7 +9,9 @@ use base qw/
 use strict;
 use warnings;
 
-our $VERSION = "0.02";
+use MRO::Compat;
+
+our $VERSION = "0.03";
 
 __PACKAGE__->mk_accessors(qw/_session_store_delegate/);
 
@@ -58,7 +60,7 @@ sub get_session_store_delegate {
 
 sub _clear_session_instance_data {
     my ( $c, @args ) = @_;
-    my $ret = $c->NEXT::_clear_session_instance_data(@args); # let the session plugin do it's thing
+    my $ret = $c->maybe::next::method(@args); # let the session plugin do it's thing
     
     my $delegate = $c->_session_store_delegate;
     $c->_session_store_delegate(undef);
@@ -137,7 +139,7 @@ The model is used to retrieve the delegate object for a given session ID.
 
 This is normally something like DBIC's resultset object.
 
-The model must respond to the C<get_model> method or closure in the sesion
+The model must respond to the C<get_delegate> method or closure in the sesion
 config hash (defaults to C<get_session_store_delegate>).
 
 An object B<must always> be returned from this method, even if it means
@@ -259,4 +261,15 @@ C<session_store_delegate_key_to_accessor>.
 
 =cut
 
+=head1 AUTHORS
+
+Yuval Kogman, C<nothingmuch@woobling.org>
+
+Tomas Doran, (t0m) C<bobtfish@bobtfish.net> (current maintainer)
+
+=head1 COPYRIGHT & LICENSE 
+
+Copyright (c) 2006 the aforementioned authors. 
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
 
