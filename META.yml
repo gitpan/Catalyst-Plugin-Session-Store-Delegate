@@ -1,23 +1,29 @@
---- #YAML:1.0
-name:               Catalyst-Plugin-Session-Store-Delegate
-version:            0.03
-abstract:           ~
-author:  []
-license:            unknown
-distribution_type:  module
+---
+abstract: 'Delegate session storage to an'
+author:
+  - 'Yuval Kogman, C<nothingmuch@woobling.org>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::More: 0
+  Test::use::ok: 0
 configure_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Catalyst::Plugin::Session:  0.12
-    Class::Accessor::Fast:  0
-    MRO::Compat:          0
-    Test::More:           0
-    Test::use::ok:        0
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.48
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.87'
+license: perl
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+module_name: Catalyst::Plugin::Session::Store::Delegate
+name: Catalyst-Plugin-Session-Store-Delegate
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  Catalyst::Plugin::Session: 0.12
+  Class::Accessor::Fast: 0
+  MRO::Compat: 0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.04
