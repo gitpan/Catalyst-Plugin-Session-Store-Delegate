@@ -1,3 +1,7 @@
+0.05
+        - Port to new session config key.
+        - Port to Moose.
+
 0.04
         - Switch to Module::Install.
         - Avoid test suite warnings with Catalyst 5.80

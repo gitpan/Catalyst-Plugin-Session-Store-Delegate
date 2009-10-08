@@ -1,23 +1,21 @@
 #!/usr/bin/perl
 
 package Catalyst::Plugin::Session::Store::Delegate;
-use base qw/
-    Catalyst::Plugin::Session::Store
-    Class::Accessor::Fast
-/;
 
-use strict;
-use warnings;
-
+use Moose;
 use MRO::Compat;
+use namespace::clean -except => 'meta';
 
-our $VERSION = "0.04";
+extends 'Catalyst::Plugin::Session::Store';
+with 'MooseX::Emulate::Class::Accessor::Fast';
+
+our $VERSION = "0.05";
 
 __PACKAGE__->mk_accessors(qw/_session_store_delegate/);
 
 sub session_store_model_name {
     my $c = shift;
-    $c->config->{session}{model} || "Sessions";
+    $c->_session_plugin_config->{model} || "Sessions";
 }
 
 sub session_store_model {
@@ -54,7 +52,7 @@ sub get_session_store_delegate {
     my $model = $c->session_store_model($id);
 
     # allow methods or arbitrary code refs
-    my $method = $c->config->{session}{get_delegate} || "get_session_store_delegate";
+    my $method = $c->_session_plugin_config->{get_delegate} || "get_session_store_delegate";
     $model->$method($id) || die "couldn't get delegate from model: $model with method: $method";
 }
 
@@ -112,6 +110,8 @@ sub delete_expired_sessions {
         $model->delete_expired_sessions;
     }
 }
+
+__PACKAGE__->meta->make_immutable;
 
 __PACKAGE__;
 

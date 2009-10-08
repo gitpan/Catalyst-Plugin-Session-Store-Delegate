@@ -6,11 +6,13 @@ use warnings;
 
 all_from 'lib/Catalyst/Plugin/Session/Store/Delegate.pm';
 name 'Catalyst-Plugin-Session-Store-Delegate';
-requires 'Catalyst::Plugin::Session' => '0.12';
+requires 'Catalyst::Plugin::Session' => '0.27';
 requires 'Class::Accessor::Fast' => '0';
 test_requires 'Test::More' => '0';
 test_requires 'Test::use::ok' => '0';
 requires 'MRO::Compat' => '0';
+
+resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Session-Store-Delegate/';
 
 WriteAll;
 
