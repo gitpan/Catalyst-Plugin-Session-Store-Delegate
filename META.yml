@@ -22,9 +22,11 @@ no_index:
     - t
 requires:
   Catalyst::Plugin::Session: 0.27
-  Class::Accessor::Fast: 0
   MRO::Compat: 0
+  Moose: 0
+  MooseX::Emulate::Class::Accessor::Fast: 0
+  namespace::clean: 0
 resources:
   license: http://dev.perl.org/licenses/
-  repository: http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Session-Store-Delegate/
-version: 0.05
+  repository: http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Session-Store-Delegate/
+version: 0.06

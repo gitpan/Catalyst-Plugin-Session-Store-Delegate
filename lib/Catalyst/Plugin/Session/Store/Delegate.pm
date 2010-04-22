@@ -9,7 +9,7 @@ use namespace::clean -except => 'meta';
 extends 'Catalyst::Plugin::Session::Store';
 with 'MooseX::Emulate::Class::Accessor::Fast';
 
-our $VERSION = "0.05";
+our $VERSION = "0.06";
 
 __PACKAGE__->mk_accessors(qw/_session_store_delegate/);
 

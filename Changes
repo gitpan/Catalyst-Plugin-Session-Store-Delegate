@@ -1,3 +1,6 @@
+0.06
+        - Fix dependencies in Makefile.PL
+
 0.05
         - Port to new session config key.
         - Port to Moose.
